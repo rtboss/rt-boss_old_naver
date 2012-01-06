@@ -36,7 +36,7 @@ void aa_main(void *p_arg)
 {  
   int aa_count = 0;
   
-  PRINTF("[%s] Init \r\n", (char *)p_arg);
+  PRINTF("[%s TASK] Init \r\n", Boss_self()->name);
   
   for(;;)
   {    
@@ -59,7 +59,7 @@ void bb_main(void *p_arg)
 {
   int bb_count = 0;
   
-  PRINTF("[%s] Init \r\n", (char *)p_arg);
+  PRINTF("[%s TASK] Init \r\n", Boss_self()->name);
   
   for(;;)
   {
@@ -89,19 +89,21 @@ int main(void)
   Boss_init(idle_main, &idle_tcb, idle_stack, _IDLE_STACK_BYTES);
   
   Boss_task_create( aa_main,              /* Task Entry Point       */
-                    "AA TASK",            /* Task Argument          */
+                    _BOSS_NULL,           /* Task Argument          */
                     &aa_tcb,              /* TCB(Task Control Block)*/
                     AA_PRIO_1,            /* Priority               */
                     aa_stk,               /* Stack Point (Base)     */
-                    sizeof(aa_stk)        /* Stack Size (Bytes)     */
+                    sizeof(aa_stk),       /* Stack Size (Bytes)     */
+                    "AA"
                     );
   
   Boss_task_create( bb_main,
-                    "BB TASK",
+                    _BOSS_NULL,
                     &bb_tcb,
                     BB_PRIO_2,
                     bb_stk,
-                    sizeof(bb_stk)
+                    sizeof(bb_stk),
+                    "BB"
                     );
   
   Boss_start();                /* Boss Scheduling Start */

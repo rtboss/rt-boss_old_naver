@@ -47,20 +47,20 @@ typedef enum {
 } _tcb_state_t;
 
 typedef struct boss_tcb_struct {  /* [ TCB (Task Control Block) 구조체 ] */  
-  _tcb_state_t      state;          /* 태스크 상태 (Waiting or Listing) */
+  _tcb_state_t      state;                /* 태스크 상태 (Waiting or Listing) */
   
-  boss_prio_t       prio;           /* 우선순위     */
+  boss_prio_t       prio;                 /* 우선순위     */
   
-  boss_sigs_t       sigs;           /* 현재 시그널  */
-  boss_sigs_t       wait;           /* 대기 시그널  */
+  boss_sigs_t       sigs;                 /* 현재 시그널  */
+  boss_sigs_t       wait;                 /* 대기 시그널  */
   
-  boss_stk_t        *sp;            /* 스택 포인터  */
+  boss_stk_t        *sp;                  /* 스택 포인터  */
   
-  #ifdef _BOSS_TCB_EXT_
-  _boss_tcb_ext_t   ext;            /* TCB 추가 정보 사용시 */
+  #ifdef _BOSS_TCB_NAME_SIZE
+  char        name[_BOSS_TCB_NAME_SIZE];  /* TCB Name */
   #endif
   
-  struct boss_tcb_struct *next;     /* 스케줄러 리스트 링크 */
+  struct boss_tcb_struct *next;           /* 스케줄러 리스트 링크 */
 } boss_tcb_t;
 
 
@@ -79,9 +79,11 @@ void Boss_sigs_send(boss_tcb_t *p_tcb, boss_sigs_t sigs);
 void Boss_sigs_clear(boss_tcb_t *p_tcb, boss_sigs_t sigs);
 boss_sigs_t Boss_sigs_receive(void);
 
-void Boss_task_create(  void (*task)(void *p_arg), void *p_arg, 
+void Boss_task_create( void (*task)(void *p_arg), void *p_arg, 
                         boss_tcb_t *p_tcb, boss_prio_t prio, 
-                        boss_stk_t *sp_base, boss_uptr_t stk_bytes );
+                        boss_stk_t *sp_base, boss_uptr_t stk_bytes,
+                        const char *name );
+
 
 void Boss_task_delete(void);
 void Boss_task_priority(boss_tcb_t *p_tcb, boss_prio_t new_prio);

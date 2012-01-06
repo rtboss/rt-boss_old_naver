@@ -59,6 +59,7 @@ void _mcu_isr_finis(void);
 /*                           RT-BOSS 사용자 설정                             */
 /*---------------------------------------------------------------------------*/
 //#define _BOSS_TCB_EXT_                /* TCB 확장(extend) */
+#define _BOSS_TCB_NAME_SIZE     8       /* TCB Name */
 #define _BOSS_MEM_INFO_                 /* 메모리 디버거 정보 */
 
 #define _BOSS_TICK_MS_          10      /* Tick (ms)  */
