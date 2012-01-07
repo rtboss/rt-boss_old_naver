@@ -101,12 +101,10 @@ void _printf_initial(void)
 /*===========================================================================
     _ A S S E R T
 ---------------------------------------------------------------------------*/
-void _assert(const char *file, unsigned int line)
+void _assert(unsigned int line)
 {
   cli();
-  PRINTF("\r\n ASSERT :");
-  printf_P(file);
-  PRINTF(" %d", line);
+  PRINTF("\r\n ASSERT : %d line", line);
   for(;;)
   {
   }

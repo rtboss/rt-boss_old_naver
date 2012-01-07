@@ -71,8 +71,8 @@ void _mcu_isr_finis(void);
 /*===========================================================================*/
 /*                                    ASSERT                                 */
 /*---------------------------------------------------------------------------*/
-#define BOSS_ASSERT(expr)  do { if(!(expr)) _assert(PSTR(__FILE__), __LINE__); } while(0)
-void _assert(const char *file, unsigned int line);
+#define BOSS_ASSERT(expr)  do { if(!(expr)) _assert(__LINE__); } while(0)
+void _assert(unsigned int line);
 
 
 /*===========================================================================*/
