@@ -60,6 +60,7 @@ void _mcu_isr_finis(void);
 /*---------------------------------------------------------------------------*/
 //#define _BOSS_TCB_EXT_                /* TCB 확장(extend) */
 #define _BOSS_TCB_NAME_SIZE     8       /* TCB Name */
+#define _BOSS_SPY_                      /* Stack 검사 */
 #define _BOSS_MEM_INFO_                 /* 메모리 디버거 정보 */
 
 #define _BOSS_TICK_MS_          10      /* Tick (ms)  */
@@ -115,6 +116,16 @@ typedef enum {
 #include "Boss_Q_Msg.h"
 #include "Boss_Q_MBox.h"
 #include "Boss_Sem.h"
+
+
+/*===========================================================================*/
+/*                                [ S P Y ]                                  */
+/*---------------------------------------------------------------------------*/
+#ifdef _BOSS_SPY_
+void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb);
+void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes);
+void Boss_spy_stack_profile(boss_tcb_t *p_tcb);
+#endif
 
 
 /*===========================================================================*/
