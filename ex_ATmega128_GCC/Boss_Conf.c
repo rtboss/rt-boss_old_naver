@@ -127,14 +127,14 @@ void _assert(const char *file, unsigned int line)
 ---------------------------------------------------------------------------*/
 void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb)
 {
-  BOSS_ASSERT(curr_tcb->sp_begin[-1] == (boss_stk_t)0xBBBBBBBB);  // Stack invasion (Begin)
-  BOSS_ASSERT(curr_tcb->sp_finis[0] == (boss_stk_t)0xFFFFFFFF);   // Stack invasion (finis)
+  BOSS_ASSERT(curr_tcb->sp_begin[-1] == (boss_stk_t)0xBB);    // Stack invasion (Begin)
+  BOSS_ASSERT(curr_tcb->sp_finis[0] == (boss_stk_t)0xFF);     // Stack invasion (finis)
 
 
-  if( (curr_tcb->sp_peak[0] != (boss_stk_t)0xEEEEEEEE) 
-      || (curr_tcb->sp_peak[-1] != (boss_stk_t)0xEEEEEEEE)
-      || (curr_tcb->sp_peak[-2] != (boss_stk_t)0xEEEEEEEE)
-      || (curr_tcb->sp_peak[-3] != (boss_stk_t)0xEEEEEEEE) )
+  if( (curr_tcb->sp_peak[0] != (boss_stk_t)0xEE) 
+      || (curr_tcb->sp_peak[-1] != (boss_stk_t)0xEE)
+      || (curr_tcb->sp_peak[-2] != (boss_stk_t)0xEE)
+      || (curr_tcb->sp_peak[-3] != (boss_stk_t)0xEE) )
   {
     if( (curr_tcb->sp_peak - 4) > curr_tcb->sp_finis)
     {
@@ -142,7 +142,7 @@ void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb)
     }
     
     while( (curr_tcb->sp_peak > curr_tcb->sp_finis) 
-                  && (*curr_tcb->sp_peak != (boss_stk_t)0xEEEEEEEE) )
+                  && (*curr_tcb->sp_peak != (boss_stk_t)0xEE) )
     {
       curr_tcb->sp_peak--;
     }
