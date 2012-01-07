@@ -60,6 +60,9 @@ static void _Boss_tcb_init( boss_tcb_t *p_tcb, boss_prio_t prio,
   
   p_tcb->next   = _BOSS_NULL;
 
+  #ifdef _BOSS_SPY_
+  _Boss_spy_setup(p_tcb, sp_base, stk_bytes);
+  #endif
   #ifdef _BOSS_TCB_NAME_SIZE
   {
     int  i;
@@ -129,6 +132,9 @@ boss_stk_t *_Boss_switch_current_tcb(boss_stk_t *cur_task_sp)
   
   _current_tcb->sp = cur_task_sp;       /* 실행중인 Task SP */
 
+  #ifdef _BOSS_SPY_
+  _Boss_spy_context(_current_tcb, _sched_tcb_list);
+  #endif
   _current_tcb = _sched_tcb_list;       /* Current TCB 변경 */
   
   cur_task_sp = _current_tcb->sp;       /* 실행할 Task SP   */

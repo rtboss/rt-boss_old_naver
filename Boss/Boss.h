@@ -55,6 +55,11 @@ typedef struct boss_tcb_struct {  /* [ TCB (Task Control Block) 구조체 ] */
   boss_sigs_t       wait;                 /* 대기 시그널  */
   
   boss_stk_t        *sp;                  /* 스택 포인터  */
+  #ifdef _BOSS_SPY_
+  boss_stk_t        *sp_finis;
+  boss_stk_t        *sp_peak;
+  boss_stk_t        *sp_begin;
+  #endif
   
   #ifdef _BOSS_TCB_NAME_SIZE
   char        name[_BOSS_TCB_NAME_SIZE];  /* TCB Name */
