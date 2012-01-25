@@ -54,14 +54,14 @@ _boss_mem_info_t _boss_mem_info;
 /*===========================================================================
     _   B O S S _ M E M _ P O O L _ I N I T
 ---------------------------------------------------------------------------*/
-void _Boss_mem_pool_init(void)
+static void _Boss_mem_pool_init(void)
 {
   _boss_mem_blk_t *first_blk = (_boss_mem_blk_t *)_memory_pool;
 
   BOSS_ASSERT( ((boss_uptr_t)_memory_pool & (_ALIGN_SIZE - 1)) == 0 );
   BOSS_ASSERT( (sizeof(_memory_pool) & (_ALIGN_SIZE - 1)) == 0 );
 
-  //BOSS_ASSERT( first_blk->size == 0 );
+  BOSS_ASSERT( first_blk->size == 0 );
   
   first_blk->in_use = _BOSS_FALSE;
   first_blk->size   = sizeof(_memory_pool);
@@ -83,12 +83,20 @@ void _Boss_mem_pool_init(void)
 ---------------------------------------------------------------------------*/
 void *Boss_mem_alloc(boss_uptr_t size)
 {
-  _boss_mem_blk_t *p_alloc = (_boss_mem_blk_t *)_memory_pool;
+  static boss_reg_t _mem_pool_init = _BOSS_FALSE;
+  
+  _boss_mem_blk_t *p_alloc;
+
+  if(_mem_pool_init == _BOSS_FALSE)
+  {
+    _mem_pool_init = _BOSS_TRUE;
+    _Boss_mem_pool_init();                              /* Memory Pool init */
+  }
                                                         /* 메모리 크기 정렬 */
   size = size + ( sizeof(_boss_mem_blk_t) + (_ALIGN_SIZE-1) );
   size = size & ~(_ALIGN_SIZE-1);
   
-  BOSS_ASSERT(p_alloc->size != 0);    /* 초기화 안됨*/
+  p_alloc = (_boss_mem_blk_t *)_memory_pool;
   BOSS_ASSERT(p_alloc->size > size);  /* First 할당 */
   
   BOSS_IRQ_DISABLE();                         /* 할당 가능한 블럭을 찾는다. */

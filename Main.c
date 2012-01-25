@@ -93,7 +93,6 @@ int main(void)
 {
   device_init();
   
-  _Boss_mem_pool_init();    /* Memory Pool init */
   Boss_init(idle_main, &idle_tcb, idle_stack, _IDLE_STACK_BYTES);
   
   Boss_task_create( aa_main,              /* Task Entry Point       */

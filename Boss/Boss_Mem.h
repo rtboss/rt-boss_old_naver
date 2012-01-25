@@ -19,8 +19,6 @@
 /*===========================================================================*/
 /*                            FUNCTION PROTOTYPES                            */
 /*---------------------------------------------------------------------------*/
-void _Boss_mem_pool_init(void);
-
 void *Boss_mem_alloc(boss_uptr_t size);
 void Boss_mem_free(void *p);
 
