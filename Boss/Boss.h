@@ -47,6 +47,7 @@ typedef enum {
 } _tcb_state_t;
 
 typedef struct boss_tcb_struct {  /* [ TCB (Task Control Block) 구조체 ] */  
+  struct boss_tcb_struct *next;           /* 스케줄러 리스트 링크 */
   _tcb_state_t      state;                /* 태스크 상태 (Waiting or Listing) */
   
   boss_prio_t       prio;                 /* 우선순위     */
@@ -55,17 +56,21 @@ typedef struct boss_tcb_struct {  /* [ TCB (Task Control Block) 구조체 ] */
   boss_sigs_t       wait;                 /* 대기 시그널  */
   
   boss_stk_t        *sp;                  /* 스택 포인터  */
+  
   #ifdef _BOSS_SPY_
+  boss_uptr_t       context_num;
+  
   boss_stk_t        *sp_finis;
   boss_stk_t        *sp_peak;
   boss_stk_t        *sp_begin;
+  
+  boss_u32_t        cpu_enter;
+  boss_u32_t        cpu_total;
   #endif
   
   #ifdef _BOSS_TCB_NAME_SIZE
   char        name[_BOSS_TCB_NAME_SIZE];  /* TCB Name */
   #endif
-  
-  struct boss_tcb_struct *next;           /* 스케줄러 리스트 링크 */
 } boss_tcb_t;
 
 

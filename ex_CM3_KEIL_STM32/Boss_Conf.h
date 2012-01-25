@@ -57,19 +57,13 @@ typedef boss_u64_t          boss_mem_align_t; /* 메모리 정렬            */
 /*---------------------------------------------------------------------------*/
 //#define _BOSS_TCB_EXT_                /* TCB 확장(extend) */
 #define _BOSS_TCB_NAME_SIZE     8       /* TCB Name */
+#define _BOSS_SPY_TCB_MAX       10      /* SPY TCB MAX */
 #define _BOSS_SPY_                      /* Stack 검사 */
 #define _BOSS_MEM_INFO_                 /* 메모리 디버거 정보 */
 
 #define _BOSS_TICK_MS_          1       /* Tick (ms)  */
 #define _IDLE_STACK_BYTES       128     /* Bytes      */
 #define _BOSS_MEM_POOL_SIZE     1024    /* Bytes      */
-
-
-/*===========================================================================*/
-/*                                    ASSERT                                 */
-/*---------------------------------------------------------------------------*/
-#define BOSS_ASSERT(expr) do { if(!(expr)) _assert(__MODULE__,__LINE__); } while(0)
-void _assert(const unsigned char *file, unsigned int line);
 
 
 /*===========================================================================*/
@@ -112,6 +106,11 @@ typedef enum {
 #include "Boss_Q_MBox.h"
 #include "Boss_Sem.h"
 
+/*===========================================================================*/
+/*                                    ASSERT                                 */
+/*---------------------------------------------------------------------------*/
+#define BOSS_ASSERT(expr) do { if(!(expr)) _assert(__MODULE__,__LINE__); } while(0)
+void _assert(const unsigned char *file, unsigned int line);
 
 /*===========================================================================*/
 /*                                [ S P Y ]                                  */
@@ -119,7 +118,7 @@ typedef enum {
 #ifdef _BOSS_SPY_
 void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb);
 void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes);
-void Boss_spy_stack_profile(boss_tcb_t *p_tcb);
+void Boss_spy_report(void);
 #endif
 
 

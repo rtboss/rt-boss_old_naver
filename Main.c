@@ -42,10 +42,6 @@ void aa_main(void *p_arg)
   {    
     Boss_sleep(500);  /* 500ms */
     PRINTF(" AA_TASK count = %d \r\n", ++aa_count);
-
-    #ifdef _BOSS_SPY_
-    Boss_spy_stack_profile(&aa_tcb);
-    #endif
   }
 }
 
@@ -67,11 +63,11 @@ void bb_main(void *p_arg)
   
   for(;;)
   {
-    Boss_sleep(1000); /* 1000ms */
+    Boss_sleep(10 * 1000);  /* 10 Sec */
     PRINTF("BB_TASK count = %d \r\n", ++bb_count);
     
     #ifdef _BOSS_SPY_
-    Boss_spy_stack_profile(&bb_tcb);
+    Boss_spy_report();
     #endif
   }
 }
