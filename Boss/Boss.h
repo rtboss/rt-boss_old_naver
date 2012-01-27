@@ -58,18 +58,18 @@ typedef struct boss_tcb_struct {  /* [ TCB (Task Control Block) 구조체 ] */
   boss_stk_t        *sp;                  /* 스택 포인터  */
   
   #ifdef _BOSS_SPY_
-  boss_uptr_t       context_num;
+  boss_stk_t    *sp_finis;
+  boss_stk_t    *sp_peak;     
+  boss_stk_t    *sp_begin;
   
-  boss_stk_t        *sp_finis;
-  boss_stk_t        *sp_peak;
-  boss_stk_t        *sp_begin;
+  boss_u32_t    cpu_ent_us;   /* Task enter time        */
+  boss_u32_t    cpu_sum_us;   /* Task run-time sum      */
   
-  boss_u32_t        cpu_enter;
-  boss_u32_t        cpu_total;
+  boss_uptr_t   context;      /* Context Switch Number  */
   #endif
   
   #ifdef _BOSS_TCB_NAME_SIZE
-  char        name[_BOSS_TCB_NAME_SIZE];  /* TCB Name */
+  char          name[_BOSS_TCB_NAME_SIZE];  /* TCB Name */
   #endif
 } boss_tcb_t;
 
