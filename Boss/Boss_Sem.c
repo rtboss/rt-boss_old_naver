@@ -53,7 +53,7 @@ boss_reg_t Boss_sem_obtain(boss_sem_t *p_sem, boss_tmr_ms_t timeout)
   BOSS_ASSERT(p_sem->owner_tcb != cur_tcb);     /* 이중 획득 금지 */
   BOSS_ASSERT((cur_tcb->sigs & BOSS_SIG_SEM_OBTAIN) != BOSS_SIG_SEM_OBTAIN);
 
-  BOSS_IRQ_LOCK_SR(irq_storage);
+  BOSS_IRQ_DISABLE_SR(irq_storage);
   if(p_sem->busy == 0)                                /* 세마포어 미사용 */
   {
     BOSS_ASSERT(p_sem->owner_tcb == _BOSS_NULL);
@@ -61,7 +61,7 @@ boss_reg_t Boss_sem_obtain(boss_sem_t *p_sem, boss_tmr_ms_t timeout)
     
     p_sem->busy++;
     p_sem->owner_tcb  = cur_tcb;
-    BOSS_IRQ_FREE_SR(irq_storage);
+    BOSS_IRQ_RESTORE_SR(irq_storage);
     
     return _BOSS_SUCCESS;
   }
@@ -74,17 +74,17 @@ boss_reg_t Boss_sem_obtain(boss_sem_t *p_sem, boss_tmr_ms_t timeout)
   p_sem->busy++;
   
   Boss_sigs_clear(cur_tcb, BOSS_SIG_SEM_OBTAIN);
-  BOSS_IRQ_FREE_SR(irq_storage);
+  BOSS_IRQ_RESTORE_SR(irq_storage);
 
   sigs = Boss_wait_sleep(BOSS_SIG_SEM_OBTAIN, timeout);  /* 세마포어 대기  */
 
-  BOSS_IRQ_LOCK_SR(irq_storage);
+  BOSS_IRQ_DISABLE_SR(irq_storage);
   sigs = sigs | Boss_sigs_receive();
   if( sigs & BOSS_SIG_SEM_OBTAIN )                        /* 세마포어 획득  */
   {
     BOSS_ASSERT(p_sem->busy != _BOSS_FALSE);
     BOSS_ASSERT(p_sem->owner_tcb == cur_tcb);      
-    BOSS_IRQ_FREE_SR(irq_storage);
+    BOSS_IRQ_RESTORE_SR(irq_storage);
     
     return _BOSS_SUCCESS;
   }
@@ -92,7 +92,7 @@ boss_reg_t Boss_sem_obtain(boss_sem_t *p_sem, boss_tmr_ms_t timeout)
   BOSS_ASSERT((sigs & BOSS_SIG_SLEEP) == BOSS_SIG_SLEEP);    /* 타임아웃 */
   _Boss_sem_list_remove(p_sem, &sem_link);                /* 리스트 제거  */
   p_sem->busy--;
-  BOSS_IRQ_FREE_SR(irq_storage);
+  BOSS_IRQ_RESTORE_SR(irq_storage);
 
   return (boss_reg_t)_BOSS_FAILURE;               /* 세마포어 획득 실패 */
 }

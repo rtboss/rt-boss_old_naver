@@ -37,10 +37,10 @@ typedef boss_u64_t          boss_mem_align_t; /* 메모리 정렬            */
                               } while(0)
 
 /*----------------------------------------------------------------------*/
-#define BOSS_IRQ_LOCK_SR( _sr_ )  \
+#define BOSS_IRQ_DISABLE_SR( _sr_ )  \
                     do { _sr_ = __get_PRIMASK(); __disable_irq(); } while(0)
             
-#define BOSS_IRQ_FREE_SR( _sr_ )      do { __set_PRIMASK(_sr_); } while(0)
+#define BOSS_IRQ_RESTORE_SR( _sr_ )     do { __set_PRIMASK(_sr_); } while(0)
 
 /*----------------------------------------------------------------------*/
 #define _BOSS_IRQ_()        __get_PRIMASK() /* 0 = Enable / !0 = Disable */

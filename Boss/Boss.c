@@ -63,6 +63,7 @@ static void _Boss_tcb_init( boss_tcb_t *p_tcb, boss_prio_t prio,
   #ifdef _BOSS_SPY_
   _Boss_spy_setup(p_tcb, sp_base, stk_bytes);
   #endif
+  
   #ifdef _BOSS_TCB_NAME_SIZE
   {
     int  i;
