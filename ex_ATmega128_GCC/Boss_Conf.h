@@ -14,6 +14,7 @@
 typedef unsigned char       boss_u08_t;     /* unsigned  8bit 데이터형 */
 typedef unsigned int        boss_u16_t;     /* unsigned 16bit 데이터형 */
 typedef unsigned long int   boss_u32_t;     /* unsigned 32bit 데이터형 */
+typedef unsigned long long  boss_u64_t;     /* unsigned 64bit 데이터형 */
 
 //typedef boss_u08_t          boss_byte_t;      /* Byte                 */
 typedef boss_u08_t          boss_reg_t;       /* MCU 레지스터 크기      */
@@ -36,10 +37,10 @@ typedef boss_u16_t          boss_mem_align_t; /* 메모리 정렬            */
                               } while(0)
 
 /*----------------------------------------------------------------------*/
-#define BOSS_IRQ_LOCK_SR( _sr_ )  \
+#define BOSS_IRQ_DISABLE_SR( _sr_ )  \
                     do { _sr_ = SREG; asm volatile("cli"); } while(0)
             
-#define BOSS_IRQ_FREE_SR( _sr_ )      do { SREG = _sr_; } while(0)
+#define BOSS_IRQ_RESTORE_SR( _sr_ )     do { SREG = _sr_; } while(0)
 
 /*----------------------------------------------------------------------*/
 #define _BOSS_IRQ_()    ( (SREG & (1 << SREG_I)) ? 0 : !0 ) /* 0 = Enable / !0 = Disable */
@@ -58,7 +59,6 @@ void _mcu_isr_finis(void);
 /*===========================================================================*/
 /*                           RT-BOSS 사용자 설정                             */
 /*---------------------------------------------------------------------------*/
-//#define _BOSS_TCB_EXT_                /* TCB 확장(extend) */
 #define _BOSS_TCB_NAME_SIZE     8       /* TCB Name */
 #define _BOSS_SPY_                      /* Stack 검사 */
 #define _BOSS_MEM_INFO_                 /* 메모리 디버거 정보 */
@@ -66,13 +66,6 @@ void _mcu_isr_finis(void);
 #define _BOSS_TICK_MS_          10      /* Tick (ms)  */
 #define _IDLE_STACK_BYTES       128     /* Bytes      */
 #define _BOSS_MEM_POOL_SIZE     1024    /* Bytes      */
-
-
-/*===========================================================================*/
-/*                                    ASSERT                                 */
-/*---------------------------------------------------------------------------*/
-#define BOSS_ASSERT(expr)  do { if(!(expr)) _assert(__LINE__); } while(0)
-void _assert(unsigned int line);
 
 
 /*===========================================================================*/
@@ -105,9 +98,8 @@ typedef enum {
 /*===========================================================================*/
 /*                               INCLUDE FILE                                */
 /*---------------------------------------------------------------------------*/
-#include <avr/io.h>
-
 #include <stdio.h>        // "printf 사용을 위해"
+#include <avr/io.h>
 #include <avr/pgmspace.h>
 
 #include "Boss.h"
@@ -117,6 +109,11 @@ typedef enum {
 #include "Boss_Q_MBox.h"
 #include "Boss_Sem.h"
 
+/*===========================================================================*/
+/*                                    ASSERT                                 */
+/*---------------------------------------------------------------------------*/
+#define BOSS_ASSERT(expr)  do { if(!(expr)) _assert(__LINE__); } while(0)
+void _assert(unsigned int line);
 
 /*===========================================================================*/
 /*                                [ S P Y ]                                  */
@@ -124,7 +121,7 @@ typedef enum {
 #ifdef _BOSS_SPY_
 void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb);
 void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes);
-void Boss_spy_stack_profile(boss_tcb_t *p_tcb);
+void Boss_spy_report(void);
 #endif
 
 
@@ -149,8 +146,8 @@ void Boss_spy_stack_profile(boss_tcb_t *p_tcb);
 #define SIG_01_BIT          (boss_sigs_t)(1 << 1)       /* 0x0002 */
 #define SIG_00_BIT          (boss_sigs_t)(1 << 0)       /* 0x0001 */
 
+
 //#define PRINTF(...)         printf_P(__VA_ARGS__)
 #define PRINTF(fmt, args...)      printf_P( PSTR(fmt), ##args )
-
 
 #endif  /* _BOSS_CONF_H_ */
