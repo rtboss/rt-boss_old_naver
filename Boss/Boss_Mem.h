@@ -19,7 +19,7 @@
 /*===========================================================================*/
 /*                            FUNCTION PROTOTYPES                            */
 /*---------------------------------------------------------------------------*/
-void *Boss_mem_alloc(boss_uptr_t size);
-void Boss_mem_free(void *p);
+void *Boss_malloc(boss_uptr_t size);
+void Boss_mfree(void *p);
 
 #endif  /* _BOSS_MEMORY_H_ */

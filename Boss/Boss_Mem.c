@@ -81,7 +81,7 @@ static void _Boss_mem_pool_init(void)
 /*===========================================================================
     B O S S _ M E M _ A L L O C
 ---------------------------------------------------------------------------*/
-void *Boss_mem_alloc(boss_uptr_t size)
+void *Boss_malloc(boss_uptr_t size)
 {
   static boss_reg_t _mem_pool_init = _BOSS_FALSE;
   
@@ -151,7 +151,7 @@ void *Boss_mem_alloc(boss_uptr_t size)
 /*===========================================================================
     B O S S _ M E M _ F R E E
 ---------------------------------------------------------------------------*/
-void Boss_mem_free(void *p)
+void Boss_mfree(void *p)
 {
   _boss_mem_blk_t *p_prev;
   _boss_mem_blk_t *p_free;

@@ -47,7 +47,7 @@ void Boss_msg_send(boss_msg_q_t *msg_q, msg_cmd_t m_cmd, boss_uptr_t param)
 {
   _msg_fifo_t *p_msg;
   
-  p_msg = Boss_mem_alloc(sizeof(_msg_fifo_t));
+  p_msg = Boss_malloc(sizeof(_msg_fifo_t));
   
   p_msg->m_cmd  = m_cmd;
   p_msg->param  = param;
@@ -95,7 +95,7 @@ msg_cmd_t Boss_msg_receive(boss_msg_q_t *msg_q, boss_uptr_t *p_param)
     m_cmd     = p_msg->m_cmd;
     *p_param = p_msg->param;
     
-    Boss_mem_free(p_msg);
+    Boss_mfree(p_msg);
   }
 
   return m_cmd;

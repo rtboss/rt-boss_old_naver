@@ -51,7 +51,7 @@ void *Boss_mbox_alloc(boss_uptr_t size)
 
   BOSS_ASSERT(0 < size);
   
-  h_mbox = Boss_mem_alloc(sizeof(_mbox_head_t) + size);
+  h_mbox = Boss_malloc(sizeof(_mbox_head_t) + size);
 
   h_mbox->state   = _MBOX_INVALID;
   h_mbox->sender  = _BOSS_NULL;
@@ -69,7 +69,7 @@ void Boss_mbox_free(void *p_mbox)
 {
   _mbox_head_t  *h_mbox = ((_mbox_head_t *)p_mbox) - 1;
                         // h_mbox : ( (void *)mbox - sizeof(_mbox_head_t) )
-  Boss_mem_free(h_mbox);
+  Boss_mfree(h_mbox);
 }
 
 
@@ -131,7 +131,7 @@ boss_reg_t Boss_mbox_pend(boss_mbox_q_t *mbox_q, void *p_mbox,
   BOSS_ASSERT(h_mbox->state == _MBOX_READY);
   
   _Boss_mbox_remove(mbox_q, h_mbox);
-  Boss_mem_free(h_mbox);
+  Boss_mfree(h_mbox);
   
   BOSS_IRQ_RESTORE_SR(irq_storage);
 
