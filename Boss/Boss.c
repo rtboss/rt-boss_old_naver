@@ -258,7 +258,7 @@ boss_sigs_t Boss_wait(boss_sigs_t wait_sigs)
 /*===========================================================================
     B O S S _ S I G S _ S E N D
 ---------------------------------------------------------------------------*/
-void Boss_sigs_send(boss_tcb_t *p_tcb, boss_sigs_t sigs)
+void Boss_send(boss_tcb_t *p_tcb, boss_sigs_t sigs)
 {  
   BOSS_IRQ_DISABLE();
   p_tcb->sigs = p_tcb->sigs | sigs;

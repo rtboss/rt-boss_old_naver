@@ -85,7 +85,7 @@ void Boss_mbox_send(boss_mbox_q_t *mbox_q, void *p_mbox)
 
   _Boss_mbox_insert(mbox_q, h_mbox);
   
-  Boss_sigs_send(mbox_q->owner_tcb, mbox_q->mbox_sig);
+  Boss_send(mbox_q->owner_tcb, mbox_q->mbox_sig);
 }
 
 
@@ -107,7 +107,7 @@ boss_reg_t Boss_mbox_pend(boss_mbox_q_t *mbox_q, void *p_mbox,
   h_mbox->sender = Boss_self();
   Boss_sigs_clear(Boss_self(), BOSS_SIG_MBOX_PEND_DONE);
   _Boss_mbox_insert(mbox_q, h_mbox);
-  Boss_sigs_send(mbox_q->owner_tcb, mbox_q->mbox_sig);
+  Boss_send(mbox_q->owner_tcb, mbox_q->mbox_sig);
   
   sigs = Boss_wait_sleep(BOSS_SIG_MBOX_PEND_DONE, timeout);   /* ´ë±â  */
 
@@ -179,7 +179,7 @@ void Boss_mbox_pend_done(void *p_mbox, boss_uptr_t rsp)
   if(h_mbox->p_rsp != _BOSS_NULL)
   {
     *(h_mbox->p_rsp) = rsp;
-    Boss_sigs_send(h_mbox->sender, BOSS_SIG_MBOX_PEND_DONE);
+    Boss_send(h_mbox->sender, BOSS_SIG_MBOX_PEND_DONE);
   }
 }
 

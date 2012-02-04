@@ -70,7 +70,7 @@ void Boss_msg_send(boss_msg_q_t *msg_q, msg_cmd_t m_cmd, boss_uptr_t param)
   }
   BOSS_IRQ_RESTORE();
   
-  Boss_sigs_send(msg_q->owner_tcb, msg_q->msg_sig);
+  Boss_send(msg_q->owner_tcb, msg_q->msg_sig);
 }
 
 

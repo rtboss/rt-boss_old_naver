@@ -133,7 +133,7 @@ void Boss_sem_release(boss_sem_t *p_sem)
     p_sem->busy--;
 
     p_sem->owner_tcb = p_best->p_tcb;
-    Boss_sigs_send(p_best->p_tcb, BOSS_SIG_SEM_OBTAIN);
+    Boss_send(p_best->p_tcb, BOSS_SIG_SEM_OBTAIN);
   }
   BOSS_IRQ_RESTORE();
   _Boss_sched_free();

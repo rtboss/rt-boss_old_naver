@@ -74,7 +74,7 @@ void _Boss_timer_tick(boss_tmr_ms_t tick_ms)
 
     if(p_done->sig != 0) {                /* 시그널 처리 */
       BOSS_ASSERT(p_done->p_tcb != _BOSS_NULL);
-      Boss_sigs_send(p_done->p_tcb, p_done->sig);
+      Boss_send(p_done->p_tcb, p_done->sig);
     }
 
     if(p_done->tmr_cb != _BOSS_NULL) {    /* 콜백 함수 실행 */
