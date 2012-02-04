@@ -89,7 +89,7 @@ void _Boss_timer_tick(boss_tmr_ms_t tick_ms)
     B O S S _ T M R _ S T A R T
 ---------------------------------------------------------------------------*/
 void Boss_tmr_start( boss_tmr_t *p_tmr, boss_tmr_ms_t tmr_ms, 
-          boss_tcb_t  *p_tcb, boss_sigs_t sig, void (*tmr_cb)(boss_tmr_t *) )
+                    boss_tcb_t  *p_tcb, boss_sigs_t sig, boss_tmr_cb_t tmr_cb )
 {
   BOSS_ASSERT(p_tmr != _BOSS_FALSE);
   BOSS_ASSERT(_BOSS_NULL == Boss_tmr_stop(p_tmr) ); /* 중복 방지 */

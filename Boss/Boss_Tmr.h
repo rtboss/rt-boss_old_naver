@@ -28,6 +28,7 @@ typedef struct boss_tmr_struct {
   struct boss_tmr_struct  *next;
 } boss_tmr_t;
 
+typedef void (*boss_tmr_cb_t)(boss_tmr_t *);
 
 /*===========================================================================*/
 /*                            FUNCTION PROTOTYPES                            */
@@ -35,7 +36,7 @@ typedef struct boss_tmr_struct {
 void _Boss_timer_tick(boss_tmr_ms_t tick_ms);
 
 void Boss_tmr_start( boss_tmr_t *p_tmr, boss_tmr_ms_t tmr_ms, 
-          boss_tcb_t  *p_tcb, boss_sigs_t sig, void (*tmr_cb)(boss_tmr_t *) );
+                    boss_tcb_t  *p_tcb, boss_sigs_t sig, boss_tmr_cb_t tmr_cb );
 
 boss_tmr_t *Boss_tmr_stop(boss_tmr_t *p_tmr);
 
