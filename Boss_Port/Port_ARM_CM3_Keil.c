@@ -93,12 +93,6 @@ boss_stk_t *_Boss_stk_init( void (*task)(void *p_arg), void *p_arg,
   for(i = 0; i < size; i++) {
     sp_base[i] = (boss_stk_t)0xEEEEEEEE;      // 스택       [E] empty
   }
-  
-  sp_base[0]      = (boss_stk_t)0xFFFFFFFF;   // 스택 끝    [F] finis
-  sp_base[1]      = (boss_stk_t)0xFFFFFFFF;
-  
-  sp_base[size-2] = (boss_stk_t)0xBBBBBBBB;
-  sp_base[size-1] = (boss_stk_t)0xBBBBBBBB;   // 스택 시작  [B] begin
   sp = sp - 2;
   #endif
 

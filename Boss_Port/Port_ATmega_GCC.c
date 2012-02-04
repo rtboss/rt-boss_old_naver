@@ -180,12 +180,6 @@ boss_reg_t  _isr_nesting = 0;
   for(i = 0; i < size; i++) {
     sp_base[i] = (boss_stk_t)0xEE;      // 스택       [E] empty
   }
-  
-  sp_base[0]      = 0xFF;               // 스택 끝    [F] finis
-  sp_base[1]      = 0xFF;
-  
-  sp_base[size-2] = 0xBB;
-  sp_base[size-1] = 0xBB;               // 스택 시작  [B] begin
   sp = sp - 2;
   #endif
 

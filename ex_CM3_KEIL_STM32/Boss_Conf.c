@@ -149,8 +149,8 @@ void _Boss_spy_tick(boss_tmr_ms_t tick_ms)
 void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb)
 {
   { /* [ Stack ] */
-    BOSS_ASSERT(curr_tcb->sp_begin[-1] == (boss_stk_t)0xBBBBBBBB);  // Stack invasion (Begin)
-    BOSS_ASSERT(curr_tcb->sp_finis[0] == (boss_stk_t)0xFFFFFFFF);   // Stack invasion (finis)
+    BOSS_ASSERT(curr_tcb->sp_begin[-1] == (boss_stk_t)0xEEEEEEEE);  // Stack invasion (Begin)
+    BOSS_ASSERT(curr_tcb->sp_finis[0] == (boss_stk_t)0xEEEEEEEE);   // Stack invasion (finis)
 
     if( (curr_tcb->sp_peak[0] != (boss_stk_t)0xEEEEEEEE) 
         || (curr_tcb->sp_peak[-1] != (boss_stk_t)0xEEEEEEEE)
