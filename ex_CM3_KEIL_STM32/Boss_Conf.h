@@ -60,7 +60,6 @@ typedef boss_u64_t          boss_mem_align_t; /* 메모리 정렬            */
 #define _BOSS_MEM_INFO_                 /* 메모리 디버거 정보 */
 
 #define _BOSS_TICK_MS_          1       /* Tick (ms)  */
-#define _IDLE_STACK_BYTES       128     /* Bytes      */
 #define _BOSS_MEM_POOL_SIZE     1024    /* Bytes      */
 
 

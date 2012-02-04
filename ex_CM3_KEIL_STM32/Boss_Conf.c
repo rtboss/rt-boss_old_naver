@@ -23,62 +23,6 @@
 /*===========================================================================*/
 /*                            FUNCTION PROTOTYPES                            */
 /*---------------------------------------------------------------------------*/
-#ifdef _BOSS_SPY_
-void _Boss_spy_tick(boss_tmr_ms_t tick_ms);
-#endif
-
-
-/*===========================================================================
-    S Y S   T I C K _   H A N D L E R (Cortex-M3 SysTick ISR)
----------------------------------------------------------------------------*/
-void SysTick_Handler(void)    /* Boss Tick Timer */
-{
-  _BOSS_ISR_BEGIN();
-  {
-    _Boss_timer_tick(_BOSS_TICK_MS_);
-    
-    #ifdef _BOSS_SPY_
-    _Boss_spy_tick(_BOSS_TICK_MS_);
-    #endif
-  }
-  _BOSS_ISR_FINIS();
-}
-
-
-/*===========================================================================
-    D E V I C E _ I N I T
----------------------------------------------------------------------------*/
-void device_init(void)
-{
-  if (SysTick_Config(SystemCoreClock / 1000)) { /* Setup SysTick Timer for 1 msec interrupts  */
-    while (1);                                  /* Capture error */
-  }
-  
-  NVIC_SetPriority(PendSV_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* PendSV IRQ 우선순위 */
-}
-
-
-/*
-*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
-*                                                                             *
-*                         RT-BOSS ( IDLE TASK )                               *
-*                                                                             *
-*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
-*/
-boss_tcb_t idle_tcb;
-boss_stk_t idle_stack[ _IDLE_STACK_BYTES / sizeof(boss_stk_t) ];
-
-/*===========================================================================
-    I D L E _ M A I N
----------------------------------------------------------------------------*/
-void idle_main(void *p_arg)
-{
-  for(;;)
-  {
-  }
-}
-
-
 
 /*
 *=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
@@ -328,5 +272,35 @@ void _assert(const unsigned char *file, unsigned int line)
   for(;;)
   {
   }
+}
+
+
+/*===========================================================================
+    B O S S _ D E V I C E _ I N I T
+---------------------------------------------------------------------------*/
+void Boss_device_init(void)
+{
+  if (SysTick_Config(SystemCoreClock / 1000)) { /* Setup SysTick Timer for 1 msec interrupts  */
+    while (1);                                  /* Capture error */
+  }
+  
+  NVIC_SetPriority(PendSV_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* PendSV IRQ 우선순위 */
+}
+
+
+/*===========================================================================
+    S Y S   T I C K _   H A N D L E R (Cortex-M3 SysTick ISR)
+---------------------------------------------------------------------------*/
+void SysTick_Handler(void)    /* Boss Tick Timer */
+{
+  _BOSS_ISR_BEGIN();
+  {
+    _Boss_timer_tick(_BOSS_TICK_MS_);
+
+    #ifdef _BOSS_SPY_
+    _Boss_spy_tick(_BOSS_TICK_MS_);
+    #endif
+  }
+  _BOSS_ISR_FINIS();
 }
 
