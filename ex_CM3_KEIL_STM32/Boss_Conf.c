@@ -296,7 +296,7 @@ void SysTick_Handler(void)    /* Boss Tick Timer */
   _BOSS_ISR_BEGIN();
   {
     _Boss_timer_tick(_BOSS_TICK_MS_);
-
+    
     #ifdef _BOSS_SPY_
     _Boss_spy_tick(_BOSS_TICK_MS_);
     #endif
