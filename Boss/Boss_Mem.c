@@ -14,6 +14,8 @@
 /*===========================================================================*/
 /*                      DEFINITIONS & TYPEDEFS & MACROS                      */
 /*---------------------------------------------------------------------------*/
+#define _MEM_MAGIC_CODE_        (boss_uptr_t)0x93467878
+
 typedef struct _boss_mem_blk_struct {     /* Memory Block Head Tyep */
   boss_uptr_t               in_use;
   boss_uptr_t               size;
@@ -96,10 +98,10 @@ void *Boss_malloc(boss_uptr_t size)
   size = size & ~(_ALIGN_SIZE-1);
   
   p_alloc = (_boss_mem_blk_t *)_memory_pool;
-  BOSS_ASSERT(p_alloc->size > size);  /* First 할당 */
+  //BOSS_ASSERT(p_alloc->size > size);  /* First 할당 */
   
   BOSS_IRQ_DISABLE();                         /* 할당 가능한 블럭을 찾는다. */
-  while( (p_alloc->size < size) && (p_alloc->in_use != _BOSS_FALSE) && p_alloc )
+  while( p_alloc && ((p_alloc->size < size) || (p_alloc->in_use != _BOSS_FALSE)) )
   {
     p_alloc = p_alloc->next;
   }
@@ -128,7 +130,7 @@ void *Boss_malloc(boss_uptr_t size)
       #endif
     }
     
-    p_alloc->in_use = _BOSS_TRUE;                   /* 메모리 할당 */
+    p_alloc->in_use = _MEM_MAGIC_CODE_;               /* 메모리 할당 */
     
     #ifdef _BOSS_MEM_INFO_
     _boss_mem_info.used_size += p_alloc->size;
@@ -163,7 +165,7 @@ void Boss_mfree(void *p)
                                             : (_MEM_POOL_START == p_free) );
   BOSS_ASSERT( (p_free->next != _BOSS_NULL) ? (p_free->next->prev == p_free)
         : ((boss_uptr_t)p_free + p_free->size == (boss_uptr_t)_MEM_POOL_END) );
-  BOSS_ASSERT( p_free->in_use == _BOSS_TRUE );
+  BOSS_ASSERT( p_free->in_use == _MEM_MAGIC_CODE_ );
   
   BOSS_IRQ_DISABLE();
   #ifdef _BOSS_MEM_INFO_
