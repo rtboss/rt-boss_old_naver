@@ -276,10 +276,12 @@ int _put_char(char c, FILE *fp)
 /*===========================================================================
     _ A S S E R T
 ---------------------------------------------------------------------------*/
-void _assert(unsigned int line)
+void _assert(const char *file, unsigned int line)
 {
   cli();
-  PRINTF("\r\n ASSERT : %d line", line);
+  PRINTF("\r\n ASSERT :");
+  printf_P(file);
+  PRINTF(" %d", line);
   for(;;)
   {
   }
