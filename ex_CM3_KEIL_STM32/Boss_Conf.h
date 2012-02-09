@@ -97,8 +97,8 @@ typedef enum {
 #include "stm32f10x.h"
 
 #include "Boss.h"
-#include "Boss_Tmr.h"
 #include "Boss_Mem.h"
+#include "Boss_Tmr.h"
 #include "Boss_Q_Msg.h"
 #include "Boss_Q_MBox.h"
 #include "Boss_Sem.h"
@@ -120,11 +120,8 @@ void Boss_spy_report(void);
 
 
 /*===========================================================================*/
-/*                     USER DEFINE & FUNCTION PROTOTYPES                     */
+/*                              SIGNALS DEFINE                               */
 /*---------------------------------------------------------------------------*/
-/*-----------------------------------------------------------------*/
-/*                       시그널 비트 정의                          */
-
 /* SIG_31_BIT ~ SIG_28_BIT (상위 4비트는 RT-BOSS에서 사용함)      */
 #define SIG_27_BIT    (boss_sigs_t)(1 << 27)    /* 0x 0800 0000 */
 #define SIG_26_BIT    (boss_sigs_t)(1 << 26)    /* 0x 0400 0000 */
@@ -158,7 +155,9 @@ void Boss_spy_report(void);
 #define SIG_01_BIT    (boss_sigs_t)(1 << 1)     /* 0x 0000 0002 */
 #define SIG_00_BIT    (boss_sigs_t)(1 << 0)     /* 0x 0000 0001 */
 
-
+/*===========================================================================*/
+/*                     USER DEFINE & FUNCTION PROTOTYPES                     */
+/*---------------------------------------------------------------------------*/
 #define PRINTF(...)   printf(__VA_ARGS__)
 
 #endif  /* _BOSS_CONF_H_ */
