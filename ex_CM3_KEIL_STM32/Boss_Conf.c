@@ -229,6 +229,32 @@ void Boss_spy_report(void)
 #endif /* _BOSS_SPY_ */
 
 
+#ifdef _BOSS_MEM_INFO_
+/*===========================================================================
+    B O S S _ M E M _ I N F O _ R E P O R T
+---------------------------------------------------------------------------*/
+void Boss_mem_info_report(void)
+{
+  boss_uptr_t total;
+  boss_uptr_t used;
+  boss_uptr_t peak;
+
+  _Boss_sched_lock();
+  PRINTF("\n[Mmory]  Peak byte  Used byte  Total  Block  first\n");
+
+  total = _Boss_mem_info_total();
+  used  = _Boss_mem_info_used();
+  peak  = _Boss_mem_info_peak();
+  
+  PRINTF("[Info]  %4d (%2d%%) %4d (%2d%%)  %4d    %2d    %4d\n", 
+                      peak, (boss_uptr_t)((peak * 100) / total),
+                      used, (boss_uptr_t)((used * 100) / total),
+                      total,_Boss_mem_info_block(),
+                      _Boss_mem_info_first_free() );
+  _Boss_sched_free();
+}
+#endif
+
 
 /*
 *=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*

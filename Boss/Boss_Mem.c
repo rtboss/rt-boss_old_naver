@@ -30,8 +30,8 @@ typedef struct _boss_mem_info_struct {
   boss_uptr_t       used_size;
   boss_uptr_t       used_peak;
   
-  boss_uptr_t       blk_div;
-  _boss_mem_blk_t   *blk_first;
+  boss_uptr_t       block;
+  _boss_mem_blk_t   *first;
 } _boss_mem_info_t;
 #endif
 
@@ -73,8 +73,8 @@ static void _Boss_mem_pool_init(void)
   #ifdef _BOSS_MEM_INFO_
   _boss_mem_info.used_size  = 0;
   _boss_mem_info.used_peak  = 0;
-  _boss_mem_info.blk_div    = 0;
-  _boss_mem_info.blk_first  = first_blk;
+  _boss_mem_info.block      = 1;
+  _boss_mem_info.first      = (_boss_mem_blk_t *)_memory_pool;
   #endif
 }
 
@@ -126,7 +126,7 @@ void *Boss_malloc(boss_uptr_t size)
       }
 
       #ifdef _BOSS_MEM_INFO_
-      _boss_mem_info.blk_div++;
+      _boss_mem_info.block++;
       #endif
     }
     
@@ -191,7 +191,7 @@ void Boss_mfree(void *p)
     p_next->next = _BOSS_NULL;
     p_next->prev = _BOSS_NULL;
     
-    _boss_mem_info.blk_div--;
+    _boss_mem_info.block--;
     #endif
   }
 
@@ -212,7 +212,7 @@ void Boss_mfree(void *p)
     p_free->next = _BOSS_NULL;
     p_free->prev = _BOSS_NULL;
     
-    _boss_mem_info.blk_div--;
+    _boss_mem_info.block--;
     #endif
   }
   BOSS_IRQ_RESTORE();
@@ -223,16 +223,6 @@ void Boss_mfree(void *p)
 /*===========================================================================*/
 /*                              MEM INFO & DEBUG                             */
 /*---------------------------------------------------------------------------*/
-
-/*===========================================================================
-    _   B O S S _ M E M _ I N F O _ F I R S T _ B L K _ F R E E _ S I Z E
----------------------------------------------------------------------------*/
-boss_uptr_t _Boss_mem_info_first_blk_free_size(void)
-{
-  _boss_mem_blk_t *p_first = (_boss_mem_blk_t *)_memory_pool;
-  
-  return ( (p_first->in_use == _BOSS_FALSE) ? (p_first->size) : 0 );
-}
 
 
 /*===========================================================================
@@ -272,10 +262,21 @@ boss_uptr_t _Boss_mem_info_peak(void)
 
 
 /*===========================================================================
-    _   B O S S _ M E M _ I N F O _ B L K _ D I V
+    _   B O S S _ M E M _ I N F O _ B L O C K
 ---------------------------------------------------------------------------*/
-boss_uptr_t _Boss_mem_info_blk_div(void)
+boss_uptr_t _Boss_mem_info_block(void)
 {
-  return _boss_mem_info.blk_div;
+  return _boss_mem_info.block;
 }
+
+/*===========================================================================
+    _   B O S S _ M E M _ I N F O _ F I R S T _ F R E E
+---------------------------------------------------------------------------*/
+boss_uptr_t _Boss_mem_info_first_free(void)
+{
+  _boss_mem_blk_t *p_first = (_boss_mem_blk_t *)_memory_pool;
+  
+  return ( (p_first->in_use == _BOSS_FALSE) ? (p_first->size) : 0 );
+}
+
 #endif /* _BOSS_MEM_INFO_ */

@@ -118,6 +118,10 @@ void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes);
 void Boss_spy_report(void);
 #endif
 
+#ifdef _BOSS_MEM_INFO_
+void Boss_mem_info_report(void);
+#endif
+
 
 /*===========================================================================*/
 /*                              SIGNALS DEFINE                               */

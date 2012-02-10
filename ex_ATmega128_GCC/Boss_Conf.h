@@ -11,10 +11,10 @@
 /*===========================================================================*/
 /*                            RT-BOSS 데이터형                               */
 /*---------------------------------------------------------------------------*/
-typedef unsigned char       boss_u08_t;     /* unsigned  8bit 데이터형 */
-typedef unsigned int        boss_u16_t;     /* unsigned 16bit 데이터형 */
-typedef unsigned long int   boss_u32_t;     /* unsigned 32bit 데이터형 */
-typedef unsigned long long  boss_u64_t;     /* unsigned 64bit 데이터형 */
+typedef unsigned char       boss_u08_t;       /* unsigned  8bit 데이터형 */
+typedef unsigned int        boss_u16_t;       /* unsigned 16bit 데이터형 */
+typedef unsigned long int   boss_u32_t;       /* unsigned 32bit 데이터형 */
+typedef unsigned long long  boss_u64_t;       /* unsigned 64bit 데이터형 */
 
 //typedef boss_u08_t          boss_byte_t;      /* Byte                 */
 typedef boss_u08_t          boss_reg_t;       /* MCU 레지스터 크기      */
@@ -102,8 +102,8 @@ typedef enum {
 #include <avr/pgmspace.h>
 
 #include "Boss.h"
-#include "Boss_Tmr.h"
 #include "Boss_Mem.h"
+#include "Boss_Tmr.h"
 #include "Boss_Q_Msg.h"
 #include "Boss_Q_MBox.h"
 #include "Boss_Sem.h"
@@ -123,13 +123,14 @@ void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes);
 void Boss_spy_report(void);
 #endif
 
+#ifdef _BOSS_MEM_INFO_
+void Boss_mem_info_report(void);
+#endif
+
 
 /*===========================================================================*/
-/*                     USER DEFINE & FUNCTION PROTOTYPES                     */
+/*                              SIGNALS DEFINE                               */
 /*---------------------------------------------------------------------------*/
-/*-----------------------------------------------------------------*/
-/*                       시그널 비트 정의                          */
-
 /* SIG_15_BIT ~ SIG_12_BIT (상위 4비트는 RT-BOSS에서 사용함)      */
 #define SIG_11_BIT          (boss_sigs_t)(1 << 11)      /* 0x0800 */
 #define SIG_10_BIT          (boss_sigs_t)(1 << 10)      /* 0x0400 */
@@ -145,8 +146,9 @@ void Boss_spy_report(void);
 #define SIG_01_BIT          (boss_sigs_t)(1 << 1)       /* 0x0002 */
 #define SIG_00_BIT          (boss_sigs_t)(1 << 0)       /* 0x0001 */
 
-
-//#define PRINTF(...)         printf_P(__VA_ARGS__)
+/*===========================================================================*/
+/*                     USER DEFINE & FUNCTION PROTOTYPES                     */
+/*---------------------------------------------------------------------------*/
 #define PRINTF(fmt, args...)      printf_P( PSTR(fmt), ##args )
 
 #endif  /* _BOSS_CONF_H_ */

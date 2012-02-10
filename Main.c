@@ -67,6 +67,10 @@ void bb_main(void *p_arg)
     Boss_sleep(10 * 1000);  /* 10 Sec */
     PRINTF("BB_TASK count = %d \r\n", ++bb_count);
     
+    #ifdef _BOSS_MEM_INFO_
+    Boss_mem_info_report();
+    #endif
+    
     #ifdef _BOSS_SPY_
     Boss_spy_report();
     #endif
