@@ -107,7 +107,7 @@ typedef enum {
 /*                                    ASSERT                                 */
 /*---------------------------------------------------------------------------*/
 #define BOSS_ASSERT(expr) do { if(!(expr)) _assert(__MODULE__,__LINE__); } while(0)
-void _assert(const unsigned char *file, unsigned int line);
+void _assert(const char *file, unsigned int line);
 
 /*===========================================================================*/
 /*                                [ S P Y ]                                  */
