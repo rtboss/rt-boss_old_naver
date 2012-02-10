@@ -9,8 +9,8 @@
 /*===========================================================================*/
 /*                               INCLUDE FILE                                */
 /*---------------------------------------------------------------------------*/
-#include "Boss.h"
 #include "stm32f10x.h"
+#include "Boss.h"
 
 /*===========================================================================*/
 /*                      DEFINITIONS & TYPEDEFS & MACROS                      */
@@ -44,18 +44,18 @@ boss_tcb_t  *_spy_tcb_tbl[_BOSS_SPY_TCB_MAX]; /* SPY TCB list         */
 ---------------------------------------------------------------------------*/
 boss_u32_t _Boss_spy_elapse_us(void)
 {
-  boss_u32_t usec;
+  boss_u32_t us;
   boss_u32_t reload = SysTick->LOAD + 1;
   boss_u32_t tmr_val = reload - SysTick->VAL;   /* count-down value */
   
                                 /* SysTick->VAL => micro second */
-  usec = _spy_elapse_us + ((tmr_val * (_BOSS_TICK_MS_ * 1000)) / reload);
+  us = _spy_elapse_us + ((tmr_val * (_BOSS_TICK_MS_ * 1000)) / reload);
   
   if(SCB->ICSR & SCB_ICSR_PENDSTSET_Msk) {
-    usec = usec + (_BOSS_TICK_MS_ * 1000);
+    us = us + (_BOSS_TICK_MS_ * 1000);
   }
 
-  return usec;
+  return us;
 }
 
 
