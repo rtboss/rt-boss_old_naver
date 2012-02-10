@@ -257,56 +257,13 @@ void Boss_mem_info_report(void)
 #endif
 
 
-/*
-*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
-*                                                                             *
-*                       [ ATmega128 UART0 (printf) ]                          *
-*                                                                             *
-*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
-*/
-int _put_char(char c, FILE *fp);
-
-
-/*===========================================================================
-    _ P R I N T F _ I N I T I A L
----------------------------------------------------------------------------*/
-void _printf_initial(void)
-{
-  /* Set baud rate (16Mhz 115200bps) */
-  UBRR0H = 0;
-  UBRR0L = 8;
-  UCSR0A &= ~(1 << U2X0);     /* Disable Double USART Speed */
-
-  /* Enable receiver and transmitter  */
-  UCSR0B = (1<<RXEN0) | (1<<TXEN0);
- 
-  /* Set frame format: 8data, 1stop bit */
-  UCSR0C = (3 << UCSZ00);
-
-  (void)fdevopen(_put_char, NULL);
-}
-
-
-
-/*===========================================================================
-    _ P U T _ C H A R
----------------------------------------------------------------------------*/
-int _put_char(char c, FILE *fp)
-{  
-  while ( !( UCSR0A & (1<<UDRE0)) );
-  UDR0 = c;
-  
-  return c;
-}
-
-
 /*===========================================================================
     _ A S S E R T
 ---------------------------------------------------------------------------*/
 void _assert(const char *file, unsigned int line)
 {
   cli();
-  PRINTF("\r\n ASSERT :");
+  PRINTF("\n ASSERT :");
   printf_P(file);
   PRINTF(" %d", line);
   for(;;)
@@ -315,20 +272,49 @@ void _assert(const char *file, unsigned int line)
 }
 
 
+/*
+*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
+*                                                                             *
+*                       [ ATmega128 UART0 (printf) ]                          *
+*                                                                             *
+*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
+*/
+static int uart0_putc(char ch, FILE *f);
+static FILE uart_stdout = FDEV_SETUP_STREAM(uart0_putc, NULL, _FDEV_SETUP_WRITE);
+
 /*===========================================================================
-    _   A   T M E G A 1 2 8 _ T I M E R 1 _ I N I T
+    U A R T 0 _ I N I T
 ---------------------------------------------------------------------------*/
-void _ATmega128_timer1_init(void)
+void uart0_init(void)
 {
-  TCCR1A = 0x00;            /* WGM1[3:0] = 4 (CTC)              */
-  TCCR1B = 0x0A;            /* prescaler = 8                    */
-  TCCR1C = 0x00;
+  /* Set baud rate (16Mhz 115200bps) */
+  UBRR0H = 0;
+  UBRR0L = 16;
+  UCSR0A |= (1 << U2X0);      /* Disable Double USART Speed */
 
-  OCR1A  = 20000 - 1;       /* (8 * (1 + 19999) ) / 16MHZ = 10ms */
-
-  TCNT1  = 0;               /* Clear counter1                   */ 
-  TIMSK = 1 << OCIE1A;      /* Enable OC1A interrupt            */
+  /* Enable receiver and transmitter  */
+  UCSR0B = (1<<RXEN0) | (1<<TXEN0);
+ 
+  /* Set frame format: 8data, 1stop bit */
+  UCSR0C = (3 << UCSZ00);
 }
+
+
+/*===========================================================================
+    U A R T 0 _ P U T C
+---------------------------------------------------------------------------*/
+static int uart0_putc(char ch, FILE *f)
+{
+  if(ch == '\n') {
+    uart0_putc('\r', f);
+  }
+  
+  while ( !( UCSR0A & (1<<UDRE0)) );
+  UDR0 = ch;
+  
+  return (ch);
+}
+
 
 
 /*===========================================================================
@@ -336,13 +322,31 @@ void _ATmega128_timer1_init(void)
 ---------------------------------------------------------------------------*/
 void Boss_device_init(void)
 {
-  _ATmega128_timer1_init();
-  _printf_initial();
+  uart0_init();
+  stdout = &uart_stdout;    /* uart printf stdout init            */
+  
+  /* [RT-BOSS Tick Timer Init] Timer1 Compare Match A (16Mhz 10ms)*/
+  TCCR1A = 0x00;            /* WGM1[3:0] = 4 (CTC)                */
+  TCCR1B = 0x0A;            /* prescaler = 8                      */
+  TCCR1C = 0x00;
+
+  OCR1A  = 20000 - 1;       /* (8 * (1 + 19999) ) / 16MHZ = 10ms  */
+
+  TCNT1  = 0;               /* Clear counter1                     */ 
+  TIMSK = 1 << OCIE1A;      /* Enable OC1A interrupt              */
 }
 
 
+
+/*
+*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
+*                                                                             *
+*                       [ RT-BOSS Tick Timer (ISR) ]                          *
+*                                                                             *
+*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*=====*
+*/
 /*===========================================================================
-   Timer Compare Match A  (ATmega128 Timer1 ISR)
+   Timer1 Compare Match A                              [ATmega128 Timer1 ISR]
 ---------------------------------------------------------------------------*/
 ISR(TIMER1_COMPA_vect)
 {
