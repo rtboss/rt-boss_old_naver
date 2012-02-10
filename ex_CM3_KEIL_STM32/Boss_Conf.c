@@ -293,12 +293,17 @@ FILE __stdin;
 /*===========================================================================
     F P U T C
 ---------------------------------------------------------------------------*/
-int fputc(int ch, FILE *f) {
+int fputc(int ch, FILE *f)
+{
+  if(ch == '\n') {
+    fputc('\r', f);
+  }
+  
   if (DEMCR & TRCENA) {
     while (ITM_Port32(0) == 0);
     ITM_Port8(0) = ch;
   }
-  return(ch);
+  return (ch);
 }
 
 
