@@ -58,14 +58,14 @@ TARGETNAME = Boss_ATmega128
 
 
 # Build directory & Object files directory & dependencies files directory
-BUILDDIR = _build
+BUILDDIR = _Build
 TARGET = $(BUILDDIR)/$(TARGETNAME)
 OBJDIR  = $(BUILDDIR)/obj
 DEPDIR  = $(BUILDDIR)/.dep
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC =	Boss_Conf.c			\
-		Port_ATmega_GCC.c	\
+		Boss_CPU_ATmega_GCC.c \
 		Boss.c				\
 		Boss_Tmr.c			\
 		Boss_Mem.c			\

@@ -392,9 +392,9 @@
               <FilePath>.\Boss_Conf.c</FilePath>
             </File>
             <File>
-              <FileName>Port_ARM_CM3_Keil.c</FileName>
+              <FileName>Boss_CPU_ARM_CM3_Keil.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Boss_Port\Port_ARM_CM3_Keil.c</FilePath>
+              <FilePath>..\Boss_Port\Boss_CPU_ARM_CM3_Keil.c</FilePath>
             </File>
             <File>
               <FileName>Boss.c</FileName>
