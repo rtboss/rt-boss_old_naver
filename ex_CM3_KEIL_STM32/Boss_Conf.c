@@ -173,6 +173,9 @@ void Boss_spy_report(void)
   
   boss_reg_t idx;
 
+  boss_u32_t cpu_per_sum = 0;
+  boss_u32_t context_sum = 0;
+
   _Boss_sched_lock();
   BOSS_IRQ_DISABLE();
   total_us = _Boss_spy_elapse_us();
@@ -187,22 +190,22 @@ void Boss_spy_report(void)
   _spy_restart_us = restart_us;
   BOSS_IRQ_RESTORE();
 
-  PRINTF("\r\n[NAME]\t STACK %%(u/t)\t C P U\t   Context\r\n");
-  PRINTF("------------------------------------------\r\n");
+  PRINTF("\n[TASK]\t  STACK %%(u/t)\t  C P U    Context\n");
+  PRINTF("------------------------------------------\n");
   for(idx = 0; idx < _BOSS_SPY_TCB_MAX; idx++)
   {
     if(_spy_tcb_tbl[idx] != _BOSS_NULL)
     {
       boss_tcb_t *p_tcb = _spy_tcb_tbl[idx];
 
-      PRINTF("[%s]", p_tcb->name);
+      PRINTF(" %s", p_tcb->name);
 
       { /* [ Stack ] */
         boss_uptr_t stk_total = (boss_uptr_t)p_tcb->sp_begin - (boss_uptr_t)p_tcb->sp_finis;
         boss_uptr_t stk_used  = (boss_uptr_t)p_tcb->sp_begin - (boss_uptr_t)p_tcb->sp_peak;
         boss_reg_t  stk_percent = (boss_reg_t)(((boss_u32_t)stk_used * 100) / (boss_u32_t)stk_total);
 
-        PRINTF("\t% 2d%%(%3d/%3d)",stk_percent, stk_used, stk_total);
+        PRINTF("\t  %2d%%(%3d/%3d)",stk_percent, stk_used, stk_total);
       }
 
       { /* [ C P U ] */
@@ -215,15 +218,19 @@ void Boss_spy_report(void)
           p_tcb->cpu_sum_us = 0;
         }
         
-        PRINTF("\t%2d.%03d%%", (int)(cpu_percent/1000), (int)(cpu_percent%1000));
+        PRINTF("\t %2d.%03d%%", (int)(cpu_percent/1000), (int)(cpu_percent%1000));
+        cpu_per_sum = cpu_per_sum  + cpu_percent;
       }
       
-      PRINTF("\t   %7d\r\n", p_tcb->context);
+      PRINTF("   %7d\n", p_tcb->context);
+      context_sum = context_sum + p_tcb->context;
       p_tcb->context = 0;
     }
   }
-  
-  PRINTF("\r\n");
+
+  PRINTF("[TOTAL] :\t\t %2d.%03d%%   %7d\n",
+          (int)(cpu_per_sum/1000), (int)(cpu_per_sum%1000),context_sum);
+  PRINTF("\n");
   _Boss_sched_free();
 }
 #endif /* _BOSS_SPY_ */
