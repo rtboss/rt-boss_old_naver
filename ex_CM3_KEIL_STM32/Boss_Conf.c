@@ -71,7 +71,8 @@ void _Boss_spy_tick(boss_tmr_ms_t tick_ms)
     boss_reg_t idx;
     
     BOSS_IRQ_DISABLE();
-    _spy_elapse_us = 0;
+    _spy_elapse_us  = 0;
+    _spy_restart_us = 0;
     
     for(idx = 0; idx < _BOSS_SPY_TCB_MAX; idx++)
     {
