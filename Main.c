@@ -37,12 +37,12 @@ void aa_main(void *p_arg)
 {  
   int aa_count = 0;
   
-  PRINTF("[%s TASK] Init \r\n", Boss_self()->name);
+  PRINTF("[%s TASK] Init \n", Boss_self()->name);
   
   for(;;)
   {    
     Boss_sleep(500);  /* 500ms */
-    PRINTF(" AA_TASK count = %d \r\n", ++aa_count);
+    PRINTF(" AA_TASK count = %d \n", ++aa_count);
   }
 }
 
@@ -60,12 +60,12 @@ void bb_main(void *p_arg)
 {
   int bb_count = 0;
   
-  PRINTF("[%s TASK] Init \r\n", Boss_self()->name);
+  PRINTF("[%s TASK] Init \n", Boss_self()->name);
   
   for(;;)
   {
     Boss_sleep(10 * 1000);  /* 10 Sec */
-    PRINTF("BB_TASK count = %d \r\n", ++bb_count);
+    PRINTF("BB_TASK count = %d \n", ++bb_count);
     
     #ifdef _BOSS_MEM_INFO_
     Boss_mem_info_report();
