@@ -1,3 +1,22 @@
+v1.23   (2012/02/12)
+- 메모리 첫번째 블럭에 할당하지 못할때 버그 수정.
+- 메모리 관리자 정보 출력 기능 추가. 
+- 메모리 할당/해제 함수 이름 변경.
+  Boss_mem_alloc() -> Boss_malloc()
+  Boss_mem_free() -> Boss_mfree()
+- 시그널 전송 함수 이름 변경.
+  Boss_sigs_send() -> Boss_send()
+- 타이머를 Boss_mem 에서 할당 및 해제 하는 방식으로 변경.
+- 타이머 반복 기능 추가.
+- CPU 포팅파일 이름변경.
+  Port_ARM_CM3_Keil.c -> Boss_CPU_ARM_CM3_Keil.c
+  Port_ATmega_GCC.c   -> Boss_CPU_ATmega_GCC.c
+- Idle Task를 Main.c 파일로 이동.
+- PRINTF() 출력 문자열 "\r\n" -> '\n' 적용. (출력함수 변경)
+- ATmega : BOSS_ASSERT 파일명 출력하도록 변경.
+- SPY 출력시 전체 CPU 점유율 및 전체 문맥전환 회수 출력하도록함.
+
+/*---------------------------------------------------------------------------------------*/
 v1.22   (2012/01/28)
 - Task CPU 점유률 측정 기능 추가.
 - 메모리 pool 초기화 이전 방식으로 변경.
