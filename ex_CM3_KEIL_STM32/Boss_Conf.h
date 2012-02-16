@@ -113,8 +113,7 @@ void _assert(const char *file, unsigned int line);
 /*                                [ S P Y ]                                  */
 /*---------------------------------------------------------------------------*/
 #ifdef _BOSS_SPY_
-void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb);
-void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes);
+void Boss_spy_restart(void);
 void Boss_spy_report(void);
 #endif
 

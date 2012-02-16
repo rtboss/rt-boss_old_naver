@@ -9,8 +9,6 @@
 /*===========================================================================*/
 /*                               INCLUDE FILE                                */
 /*---------------------------------------------------------------------------*/
-#include <avr/io.h>
-#include <avr/interrupt.h>
 #include "Boss.h"
 
 /*===========================================================================*/
@@ -35,7 +33,6 @@
 #ifdef _BOSS_SPY_
 #define _BOSS_SPY_TCB_MAX       10            /* SPY TCB Table Size   */
 
-boss_u32_t  _spy_restart_us = 0;              /* 측정 시작 시간 (us)  */
 boss_u32_t  _spy_elapse_us  = 0;              /* 경과 시간 (us)       */
 boss_tcb_t  *_spy_tcb_tbl[_BOSS_SPY_TCB_MAX]; /* SPY TCB list         */
 
@@ -46,16 +43,13 @@ boss_tcb_t  *_spy_tcb_tbl[_BOSS_SPY_TCB_MAX]; /* SPY TCB list         */
 boss_u32_t _Boss_spy_elapse_us(void)
 {
   boss_u32_t us;
-  boss_u32_t reload = OCR1A + 1;
-  boss_u32_t tmr_val = TCNT1;     /* count value */
+  boss_u32_t reload = OCR1A;
+  boss_u32_t value  = TCNT1;     /* count value */
   
                                 /* SysTick->VAL => micro second */
-  us = _spy_elapse_us + ((tmr_val * (_BOSS_TICK_MS_ * 1000)) / reload);
+  us = (value * ((boss_u32_t)_BOSS_TICK_MS_ * (boss_u32_t)1000)) / (reload + 1);
+  us = _spy_elapse_us + us;
   
-  if(TIFR & (1 << OCF1A) ) {
-    us = us + (_BOSS_TICK_MS_ * 1000);
-  }
-
   return us;
 }
 
@@ -63,28 +57,13 @@ boss_u32_t _Boss_spy_elapse_us(void)
 /*===========================================================================
     _   B O S S _ S P Y _ T I C K
 ---------------------------------------------------------------------------*/
-void _Boss_spy_tick(boss_tmr_ms_t tick_ms)
+void _Boss_spy_tick(void)
 {
-  _spy_elapse_us += (boss_u32_t)(tick_ms * 1000);   /* tick_ms -> us */
+  _spy_elapse_us += (boss_u32_t)_BOSS_TICK_MS_ * (boss_u32_t)1000;  /* tick_ms -> us */
   
   if(_spy_elapse_us > 4200000000u)  /* 70분 = 4,200,000,000 us */
-  { /* 70분 동안 Boss_spy_report() 호출 되지 않으면 재시작 */
-    boss_reg_t idx;
-    
-    BOSS_IRQ_DISABLE();
-    _spy_elapse_us  = 0;
-    _spy_restart_us = 0;
-    
-    for(idx = 0; idx < _BOSS_SPY_TCB_MAX; idx++)
-    {
-      if(_spy_tcb_tbl[idx] != _BOSS_NULL)
-      {
-        boss_tcb_t *p_tcb = _spy_tcb_tbl[idx];
-        p_tcb->cpu_ent_us = 0;
-        p_tcb->cpu_sum_us = 0;
-      }
-    }
-    BOSS_IRQ_RESTORE();
+  {
+    Boss_spy_restart();             /* 70분 경과시 */
   }
 }
 
@@ -98,26 +77,24 @@ void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb)
     BOSS_ASSERT(curr_tcb->sp_begin[-1] == (boss_stk_t)0xEEEEEEEE);  // Stack invasion (Begin)
     BOSS_ASSERT(curr_tcb->sp_finis[0] == (boss_stk_t)0xEEEEEEEE);   // Stack invasion (finis)
 
-    if( (curr_tcb->sp_peak[0] != (boss_stk_t)0xEEEEEEEE) 
-        || (curr_tcb->sp_peak[-1] != (boss_stk_t)0xEEEEEEEE)
+    while( (curr_tcb->sp_peak[-1] != (boss_stk_t)0xEEEEEEEE) 
         || (curr_tcb->sp_peak[-2] != (boss_stk_t)0xEEEEEEEE)
-        || (curr_tcb->sp_peak[-3] != (boss_stk_t)0xEEEEEEEE) )
+        || (curr_tcb->sp_peak[-3] != (boss_stk_t)0xEEEEEEEE)
+        || (curr_tcb->sp_peak[-4] != (boss_stk_t)0xEEEEEEEE) )
     {
-      --curr_tcb->sp_peak;
-      
-      while( (curr_tcb->sp_peak > curr_tcb->sp_finis) 
-                    && (*curr_tcb->sp_peak != (boss_stk_t)0xEEEEEEEE) )
-      {
-        curr_tcb->sp_peak--;
-      }
-
-      BOSS_ASSERT(curr_tcb->sp_peak > curr_tcb->sp_finis);    // Stack overflow
+      curr_tcb->sp_peak--;
+      BOSS_ASSERT(curr_tcb->sp_peak > curr_tcb->sp_finis);  // Stack overflow
     }
   }
 
   { /* [ C P U ] */
     boss_u32_t now_us = _Boss_spy_elapse_us();
 
+    if( now_us < curr_tcb->cpu_ent_us ) {       /* Tick Timer Pend */
+      now_us = now_us + ((boss_u32_t)_BOSS_TICK_MS_ * (boss_u32_t)1000);
+      BOSS_ASSERT(now_us >= curr_tcb->cpu_ent_us);
+    }
+    
     curr_tcb->cpu_sum_us += now_us - curr_tcb->cpu_ent_us;
     best_tcb->cpu_ent_us = now_us;
   }
@@ -164,14 +141,35 @@ void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes)
 
 
 /*===========================================================================
+    B O S S _ S P Y _ R E S T A R T
+---------------------------------------------------------------------------*/
+void Boss_spy_restart(void)
+{
+  boss_reg_t idx;
+  
+  BOSS_IRQ_DISABLE();
+  _spy_elapse_us  = 0;
+  
+  for(idx = 0; idx < _BOSS_SPY_TCB_MAX; idx++)
+  {
+    if(_spy_tcb_tbl[idx] != _BOSS_NULL)
+    {
+      _spy_tcb_tbl[idx]->cpu_ent_us = 0;
+      _spy_tcb_tbl[idx]->cpu_sum_us = 0;
+      _spy_tcb_tbl[idx]->context    = 0;
+    }
+  }
+  BOSS_IRQ_RESTORE();
+}
+
+
+/*===========================================================================
     B O S S _ S P Y _ R E P O R T
 ---------------------------------------------------------------------------*/
 void Boss_spy_report(void)
 {
   boss_tcb_t *curr_tcb;
   boss_u32_t total_us;
-  boss_u32_t restart_us;
-  
   boss_reg_t idx;
 
   boss_u32_t cpu_per_sum = 0;
@@ -181,14 +179,10 @@ void Boss_spy_report(void)
   BOSS_IRQ_DISABLE();
   total_us = _Boss_spy_elapse_us();
   _spy_elapse_us = 0;
-  restart_us = _Boss_spy_elapse_us();
   
   curr_tcb = Boss_self();
   curr_tcb->cpu_sum_us += total_us - curr_tcb->cpu_ent_us;
-  curr_tcb->cpu_ent_us = restart_us;
-
-  total_us = total_us - _spy_restart_us;
-  _spy_restart_us = restart_us;
+  curr_tcb->cpu_ent_us = 0;
   BOSS_IRQ_RESTORE();
 
   PRINTF("\n[TASK]\t  STACK %%(u/t)\t  C P U    Context\n");
@@ -214,7 +208,7 @@ void Boss_spy_report(void)
         
         if(p_tcb->cpu_sum_us != 0)
         {
-          cpu_percent = (boss_u32_t)(((boss_u64_t)(p_tcb->cpu_sum_us) * 100 * 1000)
+          cpu_percent = (boss_u32_t)(((boss_u64_t)(p_tcb->cpu_sum_us) * (boss_u64_t)100000)
                                                       / (boss_u64_t)total_us);
           p_tcb->cpu_sum_us = 0;
         }
@@ -362,7 +356,7 @@ ISR(TIMER1_COMPA_vect)
     _Boss_timer_tick(_BOSS_TICK_MS_);
     
     #ifdef _BOSS_SPY_
-    _Boss_spy_tick(_BOSS_TICK_MS_);
+    _Boss_spy_tick();
     #endif
   }
   _BOSS_ISR_FINIS();

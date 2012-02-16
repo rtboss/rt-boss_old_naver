@@ -32,6 +32,10 @@ void _Boss_context_switch(void);
 boss_stk_t *_Boss_stk_init( void (*task)(void *p_arg), void *p_arg,
                                 boss_stk_t *sp_base,  boss_uptr_t stk_bytes);
 
+#ifdef _BOSS_SPY_
+void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb);
+void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes);
+#endif
 
 /*===========================================================================
     B O S S _ S E L F
@@ -136,6 +140,7 @@ boss_stk_t *_Boss_switch_current_tcb(boss_stk_t *cur_task_sp)
   #ifdef _BOSS_SPY_
   _Boss_spy_context(_current_tcb, _sched_tcb_list);
   #endif
+  
   _current_tcb = _sched_tcb_list;       /* Current TCB 변경 */
   
   cur_task_sp = _current_tcb->sp;       /* 실행할 Task SP   */
