@@ -14,7 +14,7 @@
 typedef unsigned char       boss_u08_t;       /* unsigned  8bit 데이터형 */
 typedef unsigned short int  boss_u16_t;       /* unsigned 16bit 데이터형 */
 typedef unsigned int        boss_u32_t;       /* unsigned 32bit 데이터형 */
-typedef unsigned __int64    boss_u64_t;       /* unsigned 64bit 데이터형 */
+typedef unsigned long long  boss_u64_t;       /* unsigned 64bit 데이터형 */
 
 //typedef boss_u08_t          boss_byte_t;      /* Byte                 */
 typedef boss_u32_t          boss_reg_t;       /* MCU 레지스터 크기      */
