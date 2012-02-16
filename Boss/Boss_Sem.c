@@ -69,7 +69,7 @@ boss_reg_t Boss_sem_obtain(boss_sem_t *p_sem, boss_tmr_ms_t timeout)
   sem_link.next = _BOSS_NULL;
 
   sem_link.next = p_sem->wait_list;                         /* 리스트 추가  */
-  p_sem->wait_list = p_sem->wait_list = &sem_link;
+  p_sem->wait_list = &sem_link;
   p_sem->busy++;
   
   Boss_sigs_clear(cur_tcb, BOSS_SIG_SEM_OBTAIN);
