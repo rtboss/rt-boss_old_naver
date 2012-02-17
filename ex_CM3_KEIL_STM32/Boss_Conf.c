@@ -37,6 +37,13 @@ boss_u32_t  _spy_elapse_us  = 0;              /* 경과 시간 (us)       */
 boss_tcb_t  *_spy_tcb_tbl[_BOSS_SPY_TCB_MAX]; /* SPY TCB list         */
 
 
+struct {                /* [ ARM Cortex-Mx MSP (Main Stack Pointer) ] */
+  boss_stk_t    *sp_base;
+  boss_stk_t    *sp_peak;
+  boss_stk_t    *sp_limit;
+} _spy_msp;
+
+
 /*===========================================================================
     _   B O S S _ S P Y _ E L A P S E _ U S
 ---------------------------------------------------------------------------*/
@@ -101,6 +108,18 @@ void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb)
   
   /* [ Context Switch Number ] */
   best_tcb->context++;
+  
+  
+  /* [ ARM Cortex-Mx MSP (Main Stack Pointer) ] */
+  BOSS_ASSERT(_spy_msp.sp_base[0] == (boss_stk_t)0xEEEEEEEE);   // Stack invasion
+  while( (_spy_msp.sp_peak[-1] != (boss_stk_t)0xEEEEEEEE) 
+      || (_spy_msp.sp_peak[-2] != (boss_stk_t)0xEEEEEEEE)
+      || (_spy_msp.sp_peak[-3] != (boss_stk_t)0xEEEEEEEE)
+      || (_spy_msp.sp_peak[-4] != (boss_stk_t)0xEEEEEEEE) )
+  {
+    _spy_msp.sp_peak--;
+    BOSS_ASSERT(_spy_msp.sp_peak > _spy_msp.sp_base);  // MSP Stack overflow
+  }
 }
 
 
@@ -224,9 +243,44 @@ void Boss_spy_report(void)
     }
   }
 
-  PRINTF("[TOTAL] :\t\t %2d.%03d%%   %7d\n",
+  PRINTF("[TOTAL] :\t\t %2d.%03d%%   %7d\n\n",
           (int)(cpu_per_sum/1000), (int)(cpu_per_sum%1000),context_sum);
   _Boss_sched_free();
+  
+  { /* [ ARM Cortex-Mx MSP (Main Stack Pointer) ] */
+    boss_uptr_t msp_total;
+    boss_uptr_t msp_used;
+    boss_reg_t  msp_pct;
+    
+    msp_total = (boss_uptr_t)_spy_msp.sp_limit - (boss_uptr_t)_spy_msp.sp_base;
+    msp_used  = (boss_uptr_t)_spy_msp.sp_limit - (boss_uptr_t)_spy_msp.sp_peak; 
+    msp_pct = (boss_reg_t)(((boss_u32_t)msp_used * 100) / (boss_u32_t)msp_total);
+    
+    PRINTF("[ M S P ] %%(u/t) :  %2d%% (%3d/%3d)\n", msp_pct, msp_used, msp_total);
+  }
+}
+
+
+/*===========================================================================
+    _   B O S S _ S P Y _ M S P _ S E T U P
+---------------------------------------------------------------------------*/
+void _Boss_spy_msp_setup(void)
+{
+  extern const boss_u32_t STACK$$Base;
+  extern const boss_u32_t STACK$$Limit;
+  
+  boss_stk_t *msp = (boss_stk_t *)__get_MSP(); /* Get Current Main Stack Pointer (MSP) */
+  
+  _spy_msp.sp_base  = (boss_stk_t *)&STACK$$Base;
+  _spy_msp.sp_limit = (boss_stk_t *)&STACK$$Limit;
+  _spy_msp.sp_peak  = (boss_stk_t *)msp;
+  
+  msp = msp - 1;    /* FD(Full Descending) Stack */
+  
+  for(; (boss_stk_t *)&STACK$$Base <= msp; --msp)
+  {
+    *msp = (boss_stk_t)0xEEEEEEEE;  // 스택 [E] empty
+  }
 }
 #endif /* _BOSS_SPY_ */
 
@@ -315,6 +369,10 @@ int fputc(int ch, FILE *f)
 ---------------------------------------------------------------------------*/
 void Boss_device_init(void)
 {
+  #ifdef _BOSS_SPY_
+  _Boss_spy_msp_setup();
+  #endif
+
   if (SysTick_Config(SystemCoreClock / 1000)) { /* Setup SysTick Timer for 1 msec interrupts  */
     while (1);                                  /* Capture error */
   }
