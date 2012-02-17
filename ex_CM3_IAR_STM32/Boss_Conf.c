@@ -176,6 +176,9 @@ void Boss_spy_report(void)
   boss_u32_t context_sum = 0;
 
   _Boss_sched_lock();
+  PRINTF("\n[TASK]\t  STACK %%(u/t)\t  C P U    Context\n");
+  PRINTF("------------------------------------------\n");
+  
   BOSS_IRQ_DISABLE();
   total_us = _Boss_spy_elapse_us();
   _spy_elapse_us = 0;
@@ -184,9 +187,7 @@ void Boss_spy_report(void)
   curr_tcb->cpu_sum_us += total_us - curr_tcb->cpu_ent_us;
   curr_tcb->cpu_ent_us = 0;
   BOSS_IRQ_RESTORE();
-
-  PRINTF("\n[TASK]\t  STACK %%(u/t)\t  C P U    Context\n");
-  PRINTF("------------------------------------------\n");
+  
   for(idx = 0; idx < _BOSS_SPY_TCB_MAX; idx++)
   {
     if(_spy_tcb_tbl[idx] != _BOSS_NULL)
@@ -225,7 +226,6 @@ void Boss_spy_report(void)
 
   PRINTF("[TOTAL] :\t\t %2d.%03d%%   %7d\n",
           (int)(cpu_per_sum/1000), (int)(cpu_per_sum%1000),context_sum);
-  PRINTF("\n");
   _Boss_sched_free();
 }
 #endif /* _BOSS_SPY_ */
@@ -248,7 +248,7 @@ void Boss_mem_info_report(void)
   used  = _Boss_mem_info_used();
   peak  = _Boss_mem_info_peak();
   
-  PRINTF("[Info]  %4d (%2d%%) %4d (%2d%%)  %4d    %2d    %4d\n", 
+  PRINTF("[Info]  %4d (%2d%%) %4d (%2d%%)  %4d    %2d    %4d\n\n", 
                       peak, (boss_uptr_t)((peak * 100) / total),
                       used, (boss_uptr_t)((used * 100) / total),
                       total,_Boss_mem_info_block(),
