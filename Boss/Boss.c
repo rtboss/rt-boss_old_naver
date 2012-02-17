@@ -54,6 +54,10 @@ static void _Boss_tcb_init( boss_tcb_t *p_tcb, boss_prio_t prio,
                             boss_stk_t *sp_base, boss_uptr_t stk_bytes,
                             const char *name )
 {
+  #ifdef _BOSS_SPY_
+  _Boss_spy_setup(p_tcb, sp_base, stk_bytes);
+  #endif
+
   p_tcb->state  = _TCB_WAITING;
   p_tcb->prio   = prio;
   
@@ -63,10 +67,6 @@ static void _Boss_tcb_init( boss_tcb_t *p_tcb, boss_prio_t prio,
   p_tcb->sp     = _Boss_stk_init(task, p_arg, sp_base, stk_bytes);  
   
   p_tcb->next   = _BOSS_NULL;
-
-  #ifdef _BOSS_SPY_
-  _Boss_spy_setup(p_tcb, sp_base, stk_bytes);
-  #endif
   
   #ifdef _BOSS_TCB_NAME_SIZE
   {
