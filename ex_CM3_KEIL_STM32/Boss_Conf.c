@@ -142,6 +142,11 @@ void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes)
 
   { /* [ Stack ] */
     boss_uptr_t size  = bytes / sizeof(boss_stk_t);
+    boss_uptr_t i;
+    
+    for(i = 0; i < size; i++) {
+      sp_base[i] = (boss_stk_t)0xEEEEEEEE;  // ½ºÅÃ [E] empty
+    }
     
     p_tcb->sp_base  = &sp_base[0];
     p_tcb->sp_peak  = &sp_base[size-1];

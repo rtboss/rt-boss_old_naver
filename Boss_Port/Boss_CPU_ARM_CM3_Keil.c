@@ -13,9 +13,7 @@
                   |------------|
                   | 하위  번지 |
                   |############|------------------------+
-                  | 0xEEEEEEEE | <- sp_base[0]          |
-                  | 0xEEEEEEEE | <- sp_base[1]          |
-                  |============|                        |
+                  | 0xEEEEEEEE | <- sp_base             |
                   | 0xEEEEEEEE |                        |
                   | 0xEEEEEEEE |                        |
                   | 0xEEEEEEEE |                        |
@@ -62,11 +60,8 @@
                   |  PC(Entry) |                        |
                   |------------|                        |
                   |     PSR    |                        |
-                  |============|                        |
-                  | 0xEEEEEEEE | <-  sp_base[size-2]    |
-                  | 0xEEEEEEEE | <-  sp_base[size-1]    |
                   |############|------------------------+
-                  | 상위  번지 |
+                  | 상위  번지 | <- sp_limit
                   |------------|
 */
 
@@ -86,17 +81,8 @@ boss_stk_t *_Boss_stk_init( void (*task)(void *p_arg), void *p_arg,
                                 boss_stk_t *sp_base,  boss_uptr_t stk_bytes)
 {
   boss_uptr_t size  = stk_bytes / sizeof(boss_stk_t);
-  boss_stk_t  *sp   = &sp_base[size];     /* FD(Full Descending) Stack */
-
-  #if 1 /* Stack Debugging */
-  boss_uptr_t i;
-  for(i = 0; i < size; i++) {
-    sp_base[i] = (boss_stk_t)0xEEEEEEEE;      // 스택 [E] empty
-  }
-  sp = sp - 2;    /* begin */
-  #endif
-
-  /* FD(Full Descending) Stack */
+  boss_stk_t  *sp   = &sp_base[size]; /* FD(Full Descending) Stack */
+  
   --sp;   *sp = 0x01000000L;          /* PSR  */
   --sp;   *sp = (boss_stk_t)task;     /* PC : Task Entry Point */
   --sp;   *sp = 0x00000014L;          /* LR   */ 
