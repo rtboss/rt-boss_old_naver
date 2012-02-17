@@ -81,16 +81,14 @@ void _Boss_spy_tick(void)
 void _Boss_spy_context(boss_tcb_t *curr_tcb, boss_tcb_t *best_tcb)
 {
   { /* [ Stack ] */
-    BOSS_ASSERT(curr_tcb->sp_begin[-1] == (boss_stk_t)0xEEEEEEEE);  // Stack invasion (Begin)
-    BOSS_ASSERT(curr_tcb->sp_finis[0] == (boss_stk_t)0xEEEEEEEE);   // Stack invasion (finis)
-
+    BOSS_ASSERT(curr_tcb->sp_base[0] == (boss_stk_t)0xEEEEEEEE);  // Stack invasion
     while( (curr_tcb->sp_peak[-1] != (boss_stk_t)0xEEEEEEEE) 
         || (curr_tcb->sp_peak[-2] != (boss_stk_t)0xEEEEEEEE)
         || (curr_tcb->sp_peak[-3] != (boss_stk_t)0xEEEEEEEE)
         || (curr_tcb->sp_peak[-4] != (boss_stk_t)0xEEEEEEEE) )
     {
       curr_tcb->sp_peak--;
-      BOSS_ASSERT(curr_tcb->sp_peak > curr_tcb->sp_finis);  // Stack overflow
+      BOSS_ASSERT(curr_tcb->sp_peak > curr_tcb->sp_base);   // Stack overflow
     }
   }
 
@@ -145,9 +143,9 @@ void _Boss_spy_setup(boss_tcb_t *p_tcb, boss_stk_t *sp_base, boss_uptr_t bytes)
   { /* [ Stack ] */
     boss_uptr_t size  = bytes / sizeof(boss_stk_t);
     
-    p_tcb->sp_finis = &sp_base[0];
+    p_tcb->sp_base  = &sp_base[0];
     p_tcb->sp_peak  = &sp_base[size-1];
-    p_tcb->sp_begin = &sp_base[size];
+    p_tcb->sp_limit = &sp_base[size];
   }
 
   /* [ C P U ] */
@@ -190,10 +188,10 @@ void Boss_spy_report(void)
   boss_tcb_t *curr_tcb;
   boss_u32_t total_us;
   boss_reg_t idx;
-
-  boss_u32_t cpu_per_sum = 0;
+  
+  boss_u32_t cpu_pct_sum = 0;
   boss_u32_t context_sum = 0;
-
+  
   _Boss_sched_lock();
   PRINTF("\n[TASK]\t  STACK %%(u/t)\t  C P U    Context\n");
   PRINTF("------------------------------------------\n");
@@ -216,25 +214,29 @@ void Boss_spy_report(void)
       PRINTF(" %s", p_tcb->name);
 
       { /* [ Stack ] */
-        boss_uptr_t stk_total = (boss_uptr_t)p_tcb->sp_begin - (boss_uptr_t)p_tcb->sp_finis;
-        boss_uptr_t stk_used  = (boss_uptr_t)p_tcb->sp_begin - (boss_uptr_t)p_tcb->sp_peak;
-        boss_reg_t  stk_percent = (boss_reg_t)(((boss_u32_t)stk_used * 100) / (boss_u32_t)stk_total);
-
-        PRINTF("\t  %2d%%(%3d/%3d)",stk_percent, stk_used, stk_total);
+        boss_uptr_t stk_total;
+        boss_uptr_t stk_used;
+        boss_reg_t  stk_pct;
+        
+        stk_total = (boss_uptr_t)p_tcb->sp_limit - (boss_uptr_t)p_tcb->sp_base;
+        stk_used  = (boss_uptr_t)p_tcb->sp_limit - (boss_uptr_t)p_tcb->sp_peak;
+        stk_pct = (boss_reg_t)(((boss_u32_t)stk_used * 100) / (boss_u32_t)stk_total);
+        
+        PRINTF("\t  %2d%%(%3d/%3d)", stk_pct, stk_used, stk_total);
       }
 
       { /* [ C P U ] */
-        boss_u32_t cpu_percent = 0;    /* percent XX.xxx % */
+        boss_u32_t cpu_pct = 0;     /* percent XX.xxx % */
         
         if(p_tcb->cpu_sum_us != 0)
         {
-          cpu_percent = (boss_u32_t)(((boss_u64_t)(p_tcb->cpu_sum_us) * (boss_u64_t)100000)
+          cpu_pct = (boss_u32_t)(((boss_u64_t)(p_tcb->cpu_sum_us) * (boss_u64_t)100000)
                                                       / (boss_u64_t)total_us);
           p_tcb->cpu_sum_us = 0;
         }
         
-        PRINTF("\t %2d.%03d%%", (int)(cpu_percent/1000), (int)(cpu_percent%1000));
-        cpu_per_sum = cpu_per_sum  + cpu_percent;
+        PRINTF("\t %2d.%03d%%", (int)(cpu_pct/1000), (int)(cpu_pct%1000));
+        cpu_pct_sum = cpu_pct_sum  + cpu_pct;
       }
       
       PRINTF("   %7d\n", p_tcb->context);
@@ -244,7 +246,7 @@ void Boss_spy_report(void)
   }
 
   PRINTF("[TOTAL] :\t\t %2d.%03d%%   %7d\n\n",
-          (int)(cpu_per_sum/1000), (int)(cpu_per_sum%1000),context_sum);
+          (int)(cpu_pct_sum/1000), (int)(cpu_pct_sum%1000), context_sum);
   _Boss_sched_free();
   
   { /* [ ARM Cortex-Mx MSP (Main Stack Pointer) ] */
